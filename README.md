@@ -44,5 +44,3 @@ To see how our prompting system works, including our critique and revision appro
 Twitter thread on the game: https://x.com/humanscotti/status/1810777932568399933
 
 ## Contact
-
-Agent SAK was created by [Paul Scotti](https://paulscotti.github.io/) and [Will Beddow](https://www.willbeddow.com/).
