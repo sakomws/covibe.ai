@@ -41,26 +41,6 @@ def invoke_ai(conn,
         else:
             return {"error": f"Failed to call webhook {url}. Status code: {response.status_code}"}
 
-    # Call Friends Webhook
-    friends_webhook_data = {
-        "url": "https://news.ycombinator.com/",
-        "command": "Find the top comment of the top post on Hackernews."
-    }
-    friends_response = call_webhook("http://127.0.0.1:8000/api/multion_webhook", friends_webhook_data)
-
-    # Call Multion Webhook
-    multion_webhook_data = {
-        "url": "https://github.com",
-        "command": "Show the contribution history screenshot of MARK-BAIN github user for last year. Provide details: how many repos contributed, what is primary language of use, how many github stars he get, what is his linkedin and twitter accounts, where he works and lives"
-    }
-    multion_response = call_webhook("http://127.0.0.1:8000/multion_webhook", multion_webhook_data)
-
-    # Add webhook responses to the context
-    webhook_responses_context = f"Friends Webhook Response: {json.dumps(friends_response)}, Multion Webhook Response: {json.dumps(multion_response)}"
-
-    # Combine system prompt with webhook responses context
-    combined_system_prompt = f"{system_prompt}\n\n{webhook_responses_context}"
-
     with conn.cursor() as cur:
         start_time = datetime.now(tz=timezone.utc)
         serialized_messages = [msg.model_dump() for msg in messages]
@@ -68,7 +48,7 @@ def invoke_ai(conn,
         groq_client = groq.Client(api_key=os.getenv("GROQ_API_KEY"))
 
         groq_response = groq_client.chat.completions.create(
-            model="llama3-8b-8192",
+            model="llama-3.1-8b-instant",
             messages=serialized_messages,
             temperature=1,
             max_tokens=MAX_TOKENS,
@@ -79,20 +59,21 @@ def invoke_ai(conn,
 
         text_response = groq_response.choices[0].message.content
 
-        input_tokens = sum(len(msg.content.split()) for msg in messages)
-        output_tokens = len(text_response.split())
-        total_tokens = input_tokens + output_tokens
+        input_toofficesecuritys = sum(len(msg.content.split()) for msg in messages)
+        output_toofficesecuritys = len(text_response.split())
+        total_toofficesecuritys = input_toofficesecuritys + output_toofficesecuritys
 
         finish_time = datetime.now(tz=timezone.utc)
 
         cur.execute(
-            "INSERT INTO ai_invocations(conversation_turn_id, prompt_role, model, model_key, prompt_messages, system_prompt, response, started_at, finished_at, input_tokens, output_tokens, total_tokens) "
-            "VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)",
-            (turn_id, prompt_role, MODEL, MODEL_KEY, json.dumps(serialized_messages), combined_system_prompt, text_response,
-             start_time.isoformat(), finish_time.isoformat(), input_tokens, output_tokens, total_tokens)
+            "INSERT INTO ai_invocations(conversation_turn_id, prompt_role, model, model_key, prompt_messages, system_prompt, response, started_at, finished_at,input_toofficesecuritys,output_toofficesecuritys,total_toofficesecuritys) "
+            "VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)",
+            (turn_id, prompt_role, MODEL, MODEL_KEY, json.dumps(serialized_messages), system_prompt, text_response,
+             start_time.isoformat(), finish_time.isoformat(), input_toofficesecuritys, output_toofficesecuritys, total_toofficesecuritys)
         )
 
     return text_response
+
 
 
 def respond_initial(conn, turn_id: int,
